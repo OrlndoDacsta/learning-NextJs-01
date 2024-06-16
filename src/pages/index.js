@@ -1,28 +1,31 @@
-import Link from "next/link";
+import axios from "axios";
 import { useRouter } from "next/router";
 
-export default function Home() {
-  const router = useRouter();
-  const handleClickMauBayar = () => {
-    router.push("/shop/checkout");
-  };
+export async function getServerSideProps(contex) {
+  const res = await axios.get(
+    `https://jsonplaceholder.typicode.com/posts?_page=${contex.query.page}&_limit=20`
+  );
+  const data = res.data;
+  console.log(res);
+  return { props: { postDetail: data } };
+}
 
+export default function PostDetail({ postDetail }) {
+  const router = useRouter();
+  const page = Number(router.query.page || 1);
   return (
     <div>
-      <div className="flex gap-3">
-        <Link href="/profile">Profile</Link>
-        <Link href="/shop/sepatu-lari">Sepatu Lari</Link>
-      </div>
-
-      <Link href="/shop/checkout">
-        <button className="border-2 border-red-500 px-4 py-2">mau bayar</button>
-      </Link>
-
+      <ul className="list-disc list-inside">
+        {postDetail.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
+      <h1>{postDetail.title}</h1>
       <button
-        className="border-2 border-red-500 px-4 py-2"
-        onClick={handleClickMauBayar}
+        className="p-2 rounded bg-blue-800"
+        onClick={() => router.push(`?page=${page + 1}`)}
       >
-        mau bayar
+        Next
       </button>
     </div>
   );
